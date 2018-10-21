@@ -4,7 +4,7 @@ Suite à mon challenge recu par Coveo, qui est une superbe entreprise canadienne
 Pour tester ma solution, vous aurrez besoins d'une seul chose: <b>Docker</b>.
 si vousutilisez windows :<br/>
 <ul>
-  <li>Télécharge le dossier coveo-challenge à l'emplacement de ton choix </li>
+  <li>Télécharge le dossier vaneck-coveo-challenge à l'emplacement de ton choix </li>
   <li>Décompresse le dossier</li>
   <li>Ouvre le terminal (nous allons créer une nouvelle image à partir du dockerfile)
     <ol>
