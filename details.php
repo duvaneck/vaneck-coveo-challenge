@@ -17,8 +17,8 @@ date_default_timezone_set('America/Montreal');
 setlocale(LC_MONETARY,"en_US");
 
 // AWS access info
-if (!defined('awsAccessKey')) define('awsAccessKey', 'AKIAJ5UACPGP4TH7SXFA');
-if (!defined('awsSecretKey')) define('awsSecretKey', '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');
+if (!defined('awsAccessKey')) define('awsAccessKey', 'to set');
+if (!defined('awsSecretKey')) define('awsSecretKey', 'to set');
 
 // Instancier la classe
 $s3 = new S3(awsAccessKey, awsSecretKey);
