@@ -1,0 +1,1 @@
+# vaneck-coveo-challenge
