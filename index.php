@@ -83,8 +83,7 @@ $(function () {
         <div class="modal-body">
         <p>dans le cadre du covéo challenge, il était question de récupérer de l'information d'un compte aws s3. une sorte de <b>monitoring</b> et de <b>statistique</b> en même temps. ce fut très intéréssant car cela m'a fait apprendre de nouvelles notions.<br/>
 
-          Le tableau ci-dessous représente differents données récupéré à partir d'un compte amazone s3. comme vous pouvez le remarquer il n'y a pas les couts :-). En effet ma principal difficulté est de trouver combien tout cela nous coute.
-          Je me demande si mon approche est correct c'est à dire comprendre comment tout ceci est facturé et ensuite faire le calcul manuellement en php/javascript, ajax... Si quelqu'un a la réponse cette intérogation bien vouloir me contacter je suis vraiment intéréssé.
+          Le tableau ci-dessous représente differentes données récupérées à partir d'un compte amazone s3. En effet ma principal difficulté est de trouver combien tout cela nous coute. Néamoin, les prix calculés dans le tableau sont faits sur une base <b>On-Demand Storage</b> First 50 TB / month
           <p>
             Vu que amazone me facture par requette bien vouloir changer les creds avant de tester l'upload ou allez doucement car mon compte bancaire souffre lol
 

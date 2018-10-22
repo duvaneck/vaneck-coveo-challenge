@@ -3,7 +3,7 @@
 *=================================================================
 * Create by : Vaneck Duclair
 * Date : 2018-10-19
-* modify : 2018-10-20
+* modify : 2018-10-21
 *=================================================================
 * Using the file s3.php this php leaf allows
 * retrieve information and connect to an Aws s3 instance to perform different actions:
@@ -11,23 +11,28 @@
 *=================================================================
 */
 
+/* appel de la class s3 déclaré dans le fichier aws3*/
 if (!class_exists('S3')) require_once 'aws3.php';
+
+/*masquer les warning de php*/
 ini_set('display_errors', 0 );
+
+/*Parrametter le fuseau horaire à montreal*/
 date_default_timezone_set('America/Montreal');
+/* formt monetaire local US*/
 setlocale(LC_MONETARY,"en_US");
 
-// AWS access info
-if (!defined('awsAccessKey')) define('awsAccessKey', 'to set');
-if (!defined('awsSecretKey')) define('awsSecretKey', 'to set');
+// information d'acces au compte aws
+if (!defined('awsAccessKey')) define('awsAccessKey', 'change-this');
+if (!defined('awsSecretKey')) define('awsSecretKey', 'change-this');
 
 // Instancier la classe
 $s3 = new S3(awsAccessKey, awsSecretKey);
 
-//File validation
+// validation si il exite un fichier pour l'upload
 if(isset($_FILES['file'])){
 
 $file = $_FILES['file'];
-
 	// File details
 	$name = $file['name'];
 	$tmp_name = $file['tmp_name'];
@@ -39,37 +44,30 @@ $extension  = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
 	$tmp_file_name = $key.".".$extension;
 
 
-
-$uploadFile = $_FILES['file']['tmp_name']; // File to upload, we'll use the S3 class since it exists
-$bucketName = uniqid($_POST['bucketName']); // Temporary bucket. After upload to this "Temporary bucket" we can move the file to any bucket from s3 control panel.
-
-
-
-// If you want to use PECL Fileinfo for MIME types:
-//if (!extension_loaded('fileinfo') && @dl('fileinfo.so')) $_ENV['MAGIC'] = '/usr/share/file/magic';
+/**/
+$uploadFile = $_FILES['file']['tmp_name']; // attribusion du fichier temporaire < la variable
+$bucketName = uniqid($_POST['bucketName']); //creation d'un bucket temporaire pour stoqué notre file temp
 
 
-// Check if our upload file exists
+// verification de l'existance du fichier
 if (!file_exists($uploadFile) || !is_file($uploadFile))
 	exit("\nERROR: No such file: $uploadFile\n\n");
 
-// Create a bucket with public read access
+// Créer un bucket avec un accès en lecture publique
 if ($s3->putBucket($bucketName, S3::ACL_PUBLIC_READ)) {
 	echo "Created bucket {$bucketName}".PHP_EOL;
 
-	// Put our file (also with public read access)
+	// Inserer le fichier (également avec un accès public en lecture)
 	if ($s3->putObjectFile($uploadFile, $bucketName, baseName($uploadFile), S3::ACL_PUBLIC_READ)) {
 		echo "S3::putObjectFile(): File copied to {$bucketName}/".baseName($uploadFile).PHP_EOL;
 
 
-		// Get the contents of our bucket
+		// Obtenir le contenu de notre bucket à partirde son nom
 		$contents = $s3->getBucket($bucketName);
-		echo "S3::getBucket(): Files in bucket {$bucketName}: ".print_r($contents, 1);
 
 
-		// Get object info
+		// Obtenir des informations sur l'objet upload
 		$info = $s3->getObjectInfo($bucketName, baseName($uploadFile));
-		echo "<br/>S3::getObjectInfo(): Info for {$bucketName}/".baseName($uploadFile).': '.print_r($info, 1);
 
 	} else {
 		echo "S3::putObjectFile(): Failed to copy file\n";
@@ -80,15 +78,16 @@ if ($s3->putBucket($bucketName, S3::ACL_PUBLIC_READ)) {
 }
 
 
-// Check for CURL. CURL is must if not installed please install and try again.
+// Vérifiez si CURL est installer si non installé, installez-le et réessayez.
 if (!extension_loaded('curl') && !@dl(PHP_SHLIB_SUFFIX == 'so' ? 'curl.so' : 'php_curl.dll'))
 	exit("\nERROR: CURL extension not loaded\n\n");
 
-// Pointless without your keys!
+// Validation si la clé aws a été renségnée
 if (awsAccessKey == 'change-this' || awsSecretKey == 'change-this')
-	exit("\nERROR: AWS access information required\n\nPlease edit the following lines in this file:\n\n".
+	exit("\n<br/>ERREUR: informations d'accès AWS requises\n\nVeuillez modifier les lignes suivantes dans le fichier details.php:\n\n".
 	"define('awsAccessKey', 'change-me');\ndefine('awsSecretKey', 'change-me');\n\n");
 
+//Titre pour la section concernant la liste des buckets
 echo '
 			<div class="container">
 				<fieldset>
@@ -98,7 +97,7 @@ echo '
 			</div>
 ';
 
-// List your buckets:
+// récupération de la liste des buckets
 $test = $s3->listBuckets();
 
 ?>
@@ -119,11 +118,6 @@ $test = $s3->listBuckets();
     $('#example').DataTable();
 } );
   </script>
-  <style>
-  th{
-	  text-align:center;
-  }
-  </style>
 </head>
 	<body class="container">
 
@@ -162,11 +156,12 @@ $test = $s3->listBuckets();
                 <td><?php echo $nbfiles; ?></td>
                 <td class="unité">
 								<?php
+								/* pour determiner la taille il faut lister le contenu de chaque bucket et les additionner */
 									for($y=0;$y<=($nbfiles-1);$y++)
 									{
 										$size +=  $taille[$y]['size'];
 									}
-
+									/*conversion des unités pour un affichage plus propre et adéquat*/
 										if ($size/1000 < 1) {
 												echo $size.' byte';
 										}elseif ($size/1000 > 1 && $size/1000 <= 999) {
@@ -178,6 +173,9 @@ $test = $s3->listBuckets();
 										}elseif ($size/1000000000 > 1 && $size/1000000000 <= 999999999) {
 											$gb = $size/1000000000;
 											echo $gb.' Gb';
+										}elseif ($size/1000000000000 > 1 && $size/1000000000000 <= 999999999999) {
+											$gb = $size/1000000000000;
+											echo $gb.' Tb';
 										}
 
 								?>
@@ -196,7 +194,7 @@ $test = $s3->listBuckets();
 				</td>
                 <td>
 				<?php
-					//print_r(array_unique($taille));
+					// afficher le type de stockage de chaque éléments contenudans chaque bucket (sans doublon)
 					for($y=0;$y<=($nbfiles-1);$y++)
 					{
 						if($y == 0)
@@ -215,7 +213,7 @@ $test = $s3->listBuckets();
 				</td>
                 <td class="currency">
 									<?php
-										//print_r(array_unique($taille));
+										// faire le calcul des cous sur la base de la facturation de amazon
 										$cout = 0;
 										for($y=0;$y<=($nbfiles-1);$y++)
 										{
